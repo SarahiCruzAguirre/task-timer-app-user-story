@@ -58,12 +58,12 @@ export async function PATCH(req: NextRequest) {
       { returnDocument: "after" },
     );
 
-  // Mongo driver returns an object with `value` containing the updated doc
-  if (!result || !result.value) {
+  // MongoDB driver v7+: findOneAndUpdate returns the document directly (or null)
+  if (!result) {
     return NextResponse.json({ error: "Task not found" }, { status: 404 });
   }
 
-  return NextResponse.json(result.value);
+  return NextResponse.json(result);
 }
 
 export async function DELETE(req: NextRequest) {

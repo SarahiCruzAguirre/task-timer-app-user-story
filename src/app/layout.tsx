@@ -1,9 +1,9 @@
 import type { Metadata } from 'next';
-import { Space_Grotesk } from 'next/font/google';
 import './globals.css';
 
-// Application root layout and metadata. Loads a Google font and sets HTML lang.
-const spaceGrotesk = Space_Grotesk({ subsets: ['latin'] });
+// Application root layout and metadata.
+// Font is handled via a system font stack in globals.css — no network fetch
+// needed at build time, which makes the Vercel deployment reliable.
 
 export const metadata: Metadata = {
   title: 'TaskOS',
@@ -13,7 +13,7 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="es">
-      <body className={spaceGrotesk.className}>{children}</body>
+      <body className="font-sans">{children}</body>
     </html>
   );
 }

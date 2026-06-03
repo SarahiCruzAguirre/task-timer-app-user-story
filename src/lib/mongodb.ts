@@ -1,51 +1,59 @@
 // MongoDB client singleton helper used by API routes.
-// This file ensures a single connected MongoClient is reused across hot reloads
-// and sanitizes the `MONGODB_URI` environment variable before connecting.
+// The connection is established lazily (on first call to getClient) so that
+// importing this module during the Next.js build — when MONGODB_URI is not set
+// in the build environment — does NOT throw. The error only surfaces at runtime
+// when an API route actually tries to connect.
 import { MongoClient } from "mongodb";
 
 declare global {
-  // Store a global promise so Next.js hot reloads don't open multiple connections
   // eslint-disable-next-line no-var
   var _mongoClientPromise: Promise<MongoClient> | undefined;
 }
 
-let uri = process.env.MONGODB_URI;
-if (!uri) {
-  throw new Error("Define MONGODB_URI in .env.local to connect to MongoDB");
+function sanitizeUri(raw: string): string {
+  let uri = raw.trim();
+  const prefix = "MONGODB_URI=";
+  while (uri.startsWith(prefix)) {
+    uri = uri.slice(prefix.length).trim();
+  }
+  if (
+    (uri.startsWith('"') && uri.endsWith('"')) ||
+    (uri.startsWith("'") && uri.endsWith("'"))
+  ) {
+    uri = uri.slice(1, -1);
+  }
+  return uri;
 }
 
-// Basic cleanup: trim whitespace and remove accidental prefixes/quotes
-uri = uri.trim();
-const prefix = "MONGODB_URI=";
-while (uri.startsWith(prefix)) {
-  uri = uri.slice(prefix.length).trim();
-}
-if (
-  (uri.startsWith('"') && uri.endsWith('"')) ||
-  (uri.startsWith("'") && uri.endsWith("'"))
-) {
-  uri = uri.slice(1, -1);
-}
-
-// Validate scheme early to provide a clearer error message
-if (!uri.startsWith("mongodb://") && !uri.startsWith("mongodb+srv://")) {
-  const snippet = uri.slice(0, 60).replace(/\n/g, " ");
-  throw new Error(
-    `Invalid MONGODB_URI: must start with "mongodb://" or "mongodb+srv://". Value start: "${snippet}..."`,
-  );
-}
-
-const options = {};
-
-let client: MongoClient;
-let clientPromise: Promise<MongoClient>;
-
-if (!global._mongoClientPromise) {
-  // Create and cache the connection promise
-  client = new MongoClient(uri, options);
-  global._mongoClientPromise = client.connect();
+function getClient(): Promise<MongoClient> {
+  // Validate + connect on first use; throw a clear runtime error if unconfigured
+  if (!global._mongoClientPromise) {
+    const raw = process.env.MONGODB_URI;
+    if (!raw) {
+      return Promise.reject(
+        new Error("Define MONGODB_URI in .env.local (or Vercel env vars) to connect to MongoDB"),
+      );
+    }
+    const uri = sanitizeUri(raw);
+    if (!uri.startsWith("mongodb://") && !uri.startsWith("mongodb+srv://")) {
+      return Promise.reject(
+        new Error(
+          `Invalid MONGODB_URI: must start with "mongodb://" or "mongodb+srv://". Got: "${uri.slice(0, 60)}"`,
+        ),
+      );
+    }
+    const client = new MongoClient(uri);
+    global._mongoClientPromise = client.connect();
+  }
+  return global._mongoClientPromise;
 }
 
-clientPromise = global._mongoClientPromise;
+// Export a proxy promise that resolves lazily — safe to import at build time
+const clientPromise: Promise<MongoClient> = {
+  then: (...args) => getClient().then(...args),
+  catch: (...args) => getClient().catch(...args),
+  finally: (...args) => getClient().finally(...args),
+  [Symbol.toStringTag]: "Promise",
+} as Promise<MongoClient>;
 
 export default clientPromise;
