@@ -141,4 +141,4 @@ interface SubItem {
 
 ## Deployment
 
-The recommended deployment target is [Vercel](https://vercel.com). Connect the repository, add the `MONGODB_URI` environment variable in the project settings, and deploy.
+- https://task-timer-app-user.vercel.app/
