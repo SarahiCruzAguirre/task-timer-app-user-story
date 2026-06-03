@@ -73,7 +73,7 @@ export default function TodoDashboard() {
                 <span className="text-xs text-gray-600">Buscar...</span>
               </div>
               <button className="bg-gradient-to-r from-purple-700 to-purple-900 text-white text-xs font-semibold px-4 py-1.5 rounded-lg">
-                Pro ✦
+                ✦
               </button>
             </div>
           </div>
