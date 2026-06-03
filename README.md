@@ -2,17 +2,21 @@ This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-
 
 ## Getting Started
 
-First, run the development server:
+1. Copia `.env.local.example` a `.env.local` en la raíz del proyecto.
+2. Agrega tu cadena de conexión a MongoDB:
+
+```env
+MONGODB_URI="mongodb+srv://usuario:password@cluster.mongodb.net/miBaseDeDatos?retryWrites=true&w=majority"
+```
+
+3. Ejecuta el servidor de desarrollo:
 
 ```bash
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
+
+Si no quieres usar MongoDB aún, el tablero sigue funcionando con almacenamiento local en el navegador.
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
