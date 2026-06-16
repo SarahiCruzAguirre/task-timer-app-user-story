@@ -1,8 +1,8 @@
-@import "tailwindcss";
-
 /* Load Space Grotesk from Google Fonts at runtime (browser-side).
    This avoids the build-time network fetch that breaks Vercel deploys. */
 @import url("https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300..700&display=swap");
+
+@import "tailwindcss";
 
 @theme {
   --font-sans: "Space Grotesk", ui-sans-serif, system-ui, sans-serif;

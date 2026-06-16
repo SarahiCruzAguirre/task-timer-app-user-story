@@ -50,11 +50,15 @@ export async function PATCH(req: NextRequest) {
   const client = await clientPromise;
   const db = client.db();
 
+  // Exclude _id from fields to avoid MongoDB immutable field update error
+  const fieldsToUpdate = { ...body.fields };
+  delete (fieldsToUpdate as { _id?: unknown })._id;
+
   const result = await db
     .collection<Task>("tasks")
     .findOneAndUpdate(
       { id: body.id },
-      { $set: body.fields },
+      { $set: fieldsToUpdate },
       { returnDocument: "after" },
     );
 

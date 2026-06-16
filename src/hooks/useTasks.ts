@@ -126,7 +126,7 @@ export function useTasks() {
           console.error("apiCreate error:", err);
         });
     },
-    [apiCreate, setTasks],
+    [apiCreate, setTasks, fetchTasks],
   );
 
   const changeStatus = useCallback(

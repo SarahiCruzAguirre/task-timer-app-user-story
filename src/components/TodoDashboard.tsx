@@ -44,7 +44,7 @@ export default function TodoDashboard() {
       {/* Sidebar */}
       {/* Left sidebar with navigation icons */}
       <aside className="w-[52px] shrink-0 bg-[#090910] border-r border-purple-500/10 flex flex-col items-center py-4 gap-2 z-10">
-        <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-purple-600 to-purple-900 flex items-center justify-center mb-2">
+        <div className="w-7 h-7 rounded-lg bg-linear-to-br from-purple-600 to-purple-900 flex items-center justify-center mb-2">
           <span className="text-white text-xs font-bold">T</span>
         </div>
         {['layout-kanban', 'calendar', 'chart-bar', 'bell', 'settings'].map((icon) => (
@@ -52,7 +52,7 @@ export default function TodoDashboard() {
             <i className={`ti ti-${icon} text-lg`} />
           </button>
         ))}
-        <div className="mt-auto w-7 h-7 rounded-full bg-gradient-to-br from-purple-600 to-violet-400 flex items-center justify-center text-[10px] font-bold text-white">
+        <div className="mt-auto w-7 h-7 rounded-full bg-linear-to-br from-purple-600 to-violet-400 flex items-center justify-center text-[10px] font-bold text-white">
           TU
         </div>
       </aside>
@@ -61,7 +61,7 @@ export default function TodoDashboard() {
       <main className="flex-1 flex flex-col overflow-hidden">
         {/* Header */}
         {/* Top header: greeting, search and status counters */}
-        <div className="shrink-0 px-6 pt-5 pb-4 border-b border-white/[0.04]">
+        <div className="shrink-0 px-6 pt-5 pb-4 border-b border-white/4">
           <div className="flex items-center justify-between mb-3">
             <div>
               <h1 className="text-2xl font-semibold text-slate-100">Hola, bienvenido ✦</h1>
@@ -72,7 +72,7 @@ export default function TodoDashboard() {
                 <i className="ti ti-search text-gray-600 text-sm" />
                 <span className="text-xs text-gray-600">Buscar...</span>
               </div>
-              <button className="bg-gradient-to-r from-purple-700 to-purple-900 text-white text-xs font-semibold px-4 py-1.5 rounded-lg">
+              <button className="bg-linear-to-r from-purple-700 to-purple-900 text-white text-xs font-semibold px-4 py-1.5 rounded-lg">
                 ✦
               </button>
             </div>
@@ -123,7 +123,7 @@ export default function TodoDashboard() {
             </div>
 
             {/* Progreso */}
-            <div className="bg-[#0c0c16]/80 border border-white/[0.05] rounded-xl p-3">
+            <div className="bg-[#0c0c16]/80 border border-white/5 rounded-xl p-3">
               <p className="text-[10px] uppercase tracking-widest text-gray-600 mb-3">Progreso</p>
               {STATUSES.map((s) => {
                 const pct = tasks.length
@@ -145,7 +145,7 @@ export default function TodoDashboard() {
                       <span className="text-gray-500">{labels[s]}</span>
                       <span className="text-purple-400 font-semibold">{pct}%</span>
                     </div>
-                    <div className="h-1 bg-white/[0.04] rounded-full overflow-hidden">
+                    <div className="h-1 bg-white/4 rounded-full overflow-hidden">
                       <div
                         className={`h-full rounded-full transition-all ${bar[s]}`}
                         style={{ width: `${pct}%` }}

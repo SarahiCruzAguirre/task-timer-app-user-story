@@ -47,18 +47,18 @@ export default function TaskColumn({ status, tasks, ...handlers }: Props) {
       onDrop={handleDrop}
       onDragOver={handleDragOver}
       onDragLeave={handleDragLeave}
-      className="bg-[#0c0c16]/80 border border-white/[0.05] rounded-xl p-2.5 min-h-[300px] transition-colors"
+      className="bg-[#0c0c16]/80 border border-white/5 rounded-xl p-2.5 min-h-[300px] transition-colors"
     >
       {/* Column header with color dot and count */}
-      <div className="flex items-center gap-2 pb-2 mb-2 border-b border-white/[0.05]">
+      <div className="flex items-center gap-2 pb-2 mb-2 border-b border-white/5">
         <div className={`w-2 h-2 rounded-full ${cfg.dot}`} />
         <span className={`text-[10px] font-semibold uppercase tracking-widest flex-1 ${cfg.name}`}>{cfg.label}</span>
-        <span className="text-[10px] bg-white/[0.05] text-gray-600 rounded-full px-2 py-0.5">{tasks.length}</span>
+        <span className="text-[10px] bg-white/5 text-gray-600 rounded-full px-2 py-0.5">{tasks.length}</span>
       </div>
 
       {/* Task cards area: empty state or mapped TaskCard components */}
       {tasks.length === 0 ? (
-        <div className="text-center py-8 text-gray-800 text-[10px] border border-dashed border-white/[0.04] rounded-lg">
+        <div className="text-center py-8 text-gray-800 text-[10px] border border-dashed border-white/4 rounded-lg">
           Sin tareas
         </div>
       ) : (
