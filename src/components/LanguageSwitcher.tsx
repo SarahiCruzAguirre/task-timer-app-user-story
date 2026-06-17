@@ -49,6 +49,18 @@ export default function LanguageSwitcher() {
       >
         EN
       </button>
+
+      {/* Portuguese Language Toggle Button */}
+      <button
+        onClick={() => setLocale("pt")}
+        className={`min-w-0 px-2 h-7 text-xs font-semibold rounded-lg transition-all cursor-pointer ${
+          locale === "pt"
+            ? "bg-linear-to-r from-purple-700 to-purple-900 text-white shadow"
+            : "text-text-muted hover:text-text-main hover:bg-bg-card-hover"
+        }`}
+      >
+        PT
+      </button>
     </div>
   );
 }

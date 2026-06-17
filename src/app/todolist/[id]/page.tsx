@@ -64,7 +64,7 @@ export default function TaskDetailPage({ params }: PageProps) {
         
         setTask(fetchedTask);
         setComments(fetchedComments);
-      } catch (err: any) {
+      } catch (err) {
         console.error("Error loading task details:", err);
         setError(t("task_not_found"));
       } finally {
@@ -87,7 +87,7 @@ export default function TaskDetailPage({ params }: PageProps) {
       // Update state locally so the new comment appears instantly without refreshing
       setComments((prev) => [...prev, savedComment]);
       setNewCommentText("");
-    } catch (err: any) {
+    } catch (err) {
       console.error("Error submitting comment:", err);
       alert("Error saving comment. Please try again.");
     } finally {

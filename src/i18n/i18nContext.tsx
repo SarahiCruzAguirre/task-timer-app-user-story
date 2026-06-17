@@ -27,12 +27,13 @@
 import React, { createContext, useState, useEffect, useContext } from "react";
 import en from "./locales/en.json";
 import es from "./locales/es.json";
+import pt from "./locales/pt.json";
 
 // Define the supported locales
-export type Locale = "en" | "es";
+export type Locale = "en" | "es" | "pt";
 
 // Map dictionaries to locales
-const translations = { en, es };
+const translations = { en, es, pt };
 
 // Type definition for the Translation Context
 interface I18nContextProps {
@@ -52,11 +53,20 @@ export function I18nProvider({ children }: { children: React.ReactNode }) {
   const [locale, setLocaleState] = useState<Locale>("es");
 
   // Read saved locale from localStorage on mount (client-side only)
+  // Wrapped in a setTimeout to avoid triggering synchronous setState warnings in React effects
   useEffect(() => {
+    let active = true;
     const savedLocale = localStorage.getItem(LOCAL_STORAGE_LANG_KEY) as Locale;
-    if (savedLocale === "en" || savedLocale === "es") {
-      setLocaleState(savedLocale);
+    if (savedLocale === "en" || savedLocale === "es" || savedLocale === "pt") {
+      setTimeout(() => {
+        if (active) {
+          setLocaleState(savedLocale);
+        }
+      }, 0);
     }
+    return () => {
+      active = false;
+    };
   }, []);
 
   // Update locale state and persist the choice in localStorage

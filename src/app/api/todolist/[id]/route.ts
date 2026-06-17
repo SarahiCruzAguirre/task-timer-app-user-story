@@ -36,15 +36,9 @@ export async function GET(
     const db = client.db();
 
     // Prepare robust query matching both ObjectId _id and string id
-    let query: Record<string, any> = { id: id };
-    if (ObjectId.isValid(id)) {
-      query = {
-        $or: [
-          { _id: new ObjectId(id) },
-          { id: id }
-        ]
-      };
-    }
+    const query = ObjectId.isValid(id)
+      ? { $or: [{ _id: new ObjectId(id) }, { id: id }] }
+      : { id: id };
 
     const task = await db.collection("tasks").findOne(query);
 

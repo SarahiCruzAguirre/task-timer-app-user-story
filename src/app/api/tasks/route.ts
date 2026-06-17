@@ -15,17 +15,17 @@ export async function GET() {
       .toArray();
 
     // Aggregate comments count grouped by todoId from comments collection
-    const commentCounts = await db.collection("comments").aggregate([
+    const commentCounts = await db.collection("comments").aggregate<{ _id: string; count: number }>([
       { $group: { _id: "$todoId", count: { $sum: 1 } } }
     ]).toArray();
 
     // Create a key-value map for quick lookup
     const countMap = new Map<string, number>(
-      commentCounts.map((c: any) => [String(c._id), Number(c.count)])
+      commentCounts.map((c) => [String(c._id), Number(c.count)])
     );
 
     // Append commentCount field to task objects before responding
-    const tasksWithCounts = tasks.map((task: any) => {
+    const tasksWithCounts = tasks.map((task: Task) => {
       const dbId = task._id ? String(task._id) : "";
       const stringId = task.id ? String(task.id) : "";
       const count = countMap.get(dbId) || countMap.get(stringId) || 0;
