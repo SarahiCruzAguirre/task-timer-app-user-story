@@ -8,9 +8,12 @@ import {
   PlusIcon,
   XMarkIcon,
   CheckIcon,
+  ChatBubbleLeftRightIcon,
 } from '@heroicons/react/24/outline';
 import { Task, TaskStatus } from '@/types/task';
 import { getTimeLogs, formatDuration, formatDate } from '@/utils/timeTracker';
+import { useRouter } from 'next/navigation';
+import { useTranslation } from '@/hooks/useTranslation';
 
 const STATUS_CONFIG: Record<TaskStatus, { label: string; badge: string; btn: string }> = {
   inbox:       { label: 'Inbox',      badge: 'bg-gray-500/15 text-gray-400',   btn: 'border-gray-500/40 text-gray-400 hover:bg-gray-500/20' },
@@ -40,6 +43,19 @@ export default function TaskCard({
   const [editVal, setEditVal] = useState(task.title);
   const [subInput, setSubInput] = useState('');
   const editRef = useRef<HTMLInputElement>(null);
+  const router = useRouter();
+  const { t } = useTranslation();
+
+  // Retrieve translation label for active status
+  const getStatusLabel = (s: TaskStatus) => {
+    switch (s) {
+      case 'inbox':       return t('inbox');
+      case 'pending':     return t('pending');
+      case 'in_progress': return t('progress');
+      case 'done':        return t('done');
+      default:            return s;
+    }
+  };
 
   useEffect(() => {
     if (editing) editRef.current?.focus();
@@ -62,7 +78,7 @@ export default function TaskCard({
 
   return (
     <div
-      className={`bg-[#12101f]/95 rounded-xl border-l-2 border-t border-r border-b border-white/5 p-3 mb-2 cursor-grab active:cursor-grabbing hover:-translate-y-0.5 transition-transform ${borderColor[task.status]}`}
+      className={`bg-bg-card rounded-xl border-l-2 border-t border-r border-b border-border-main p-3 mb-2 cursor-grab active:cursor-grabbing hover:bg-bg-card-hover hover:-translate-y-0.5 transition-all ${borderColor[task.status]}`}
       draggable
       onDragStart={(e) => e.dataTransfer.setData('taskId', task.id)}
     >
@@ -78,31 +94,52 @@ export default function TaskCard({
               if (e.key === 'Enter') { onUpdateTitle(task.id, editVal); setEditing(false); }
               if (e.key === 'Escape') setEditing(false);
             }}
-            className="flex-1 bg-transparent border-b border-purple-500/50 outline-none text-slate-200 text-xs font-medium"
+            className="flex-1 bg-transparent border-b border-purple-500/50 outline-none text-text-main text-xs font-medium"
           />
         ) : (
           <div
-            className={`flex-1 text-xs font-medium leading-snug cursor-pointer ${task.status === 'done' ? 'line-through text-gray-600' : 'text-slate-300'}`}
+            className={`flex-1 text-xs font-medium leading-snug cursor-pointer ${task.status === 'done' ? 'line-through text-text-muted/50' : 'text-text-main'}`}
             onDoubleClick={() => setEditing(true)}
           >
             {task.title}
           </div>
         )}
-        <button onClick={() => setExpanded(!expanded)} className="text-gray-600 hover:text-purple-400 transition-colors p-0.5">
+        <button onClick={() => setExpanded(!expanded)} className="text-text-muted/60 hover:text-purple-500 transition-colors p-0.5">
           <ChevronDownIcon className={`w-3.5 h-3.5 transition-transform ${expanded ? 'rotate-180' : ''}`} />
         </button>
-        <button onClick={() => onDelete(task.id)} className="text-gray-600 hover:text-red-400 transition-colors p-0.5">
+        <button onClick={() => onDelete(task.id)} className="text-text-muted/60 hover:text-red-500 transition-colors p-0.5">
           <TrashIcon className="w-3.5 h-3.5" />
         </button>
       </div>
 
-      {/* Meta: status badge, creation date and sub-item summary */}
-      <div className="flex items-center gap-2 flex-wrap mb-2">
-        <span className={`text-[9px] font-semibold px-2 py-0.5 rounded-full ${cfg.badge}`}>{cfg.label}</span>
-        <span className="text-[10px] text-gray-600">{formatDate(task.createdAt)}</span>
-        {task.subItems.length > 0 && (
-          <span className="text-[10px] text-gray-600">· {task.subItems.filter((s) => s.done).length}/{task.subItems.length}</span>
-        )}
+      {/* Meta: status badge, creation date, comment count badge, and sub-item summary */}
+      <div className="flex items-center gap-2 flex-wrap mb-2 justify-between w-full">
+        <div className="flex items-center gap-2 flex-wrap">
+          <span className={`text-[9px] font-semibold px-2 py-0.5 rounded-full ${cfg.badge}`}>{getStatusLabel(task.status)}</span>
+          <span className="text-[10px] text-text-muted/60">{formatDate(task.createdAt)}</span>
+          {task.subItems.length > 0 && (
+            <span className="text-[10px] text-text-muted/60">· {task.subItems.filter((s) => s.done).length}/{task.subItems.length}</span>
+          )}
+          
+          {/* Comment Count Badge */}
+          {task.commentCount !== undefined && task.commentCount > 0 && (
+            <span className="text-[10px] flex items-center gap-1 bg-purple-500/10 text-purple-300 px-1.5 py-0.5 rounded border border-purple-500/20">
+              <ChatBubbleLeftRightIcon className="w-3 h-3" />
+              {task.commentCount}
+            </span>
+          )}
+        </div>
+
+        {/* View Details Button */}
+        <button
+          onClick={(e) => {
+            e.stopPropagation();
+            router.push(`/todolist/${task._id || task.id}`);
+          }}
+          className="text-[9px] font-semibold px-2 py-0.5 rounded bg-purple-500/10 hover:bg-purple-500/20 text-purple-300 border border-purple-500/20 transition-all cursor-pointer shrink-0"
+        >
+          {t('view_details')}
+        </button>
       </div>
 
       {/* Time chips: display aggregated time spent per status */}
@@ -111,8 +148,8 @@ export default function TaskCard({
           const ms = tl[s];
           if (!ms) return null;
           return (
-            <span key={s} className="text-[9px] px-1.5 py-0.5 rounded bg-white/3 border border-white/5 text-gray-600">
-              {STATUS_CONFIG[s].label}: {formatDuration(ms)}
+            <span key={s} className="text-[9px] px-1.5 py-0.5 rounded bg-bg-input border border-border-main text-text-muted">
+              {getStatusLabel(s)}: {formatDuration(ms)}
             </span>
           );
         })}
@@ -121,10 +158,10 @@ export default function TaskCard({
 
       {/* Expanded panel: appears when card is expanded; contains controls */}
       {expanded && (
-        <div className="border-t border-white/5 pt-2 mt-1 space-y-3">
+        <div className="border-t border-border-main pt-2 mt-1 space-y-3">
           {/* Status buttons: let user quickly change task status */}
           <div>
-            <p className="text-[9px] uppercase tracking-wider text-gray-600 mb-1.5">Cambiar estado</p>
+            <p className="text-[9px] uppercase tracking-wider text-text-muted/70 mb-1.5">{t('change_status')}</p>
             <div className="flex flex-wrap gap-1">
               {STATUS_ORDER.map((s) => (
                 <button
@@ -132,7 +169,7 @@ export default function TaskCard({
                   onClick={() => onChangeStatus(task.id, s)}
                   className={`text-[9px] font-semibold px-2 py-1 rounded-full border transition-all ${STATUS_CONFIG[s].btn} ${task.status === s ? 'opacity-100 scale-105' : 'opacity-60'}`}
                 >
-                  {STATUS_CONFIG[s].label}
+                  {getStatusLabel(s)}
                 </button>
               ))}
             </div>
@@ -140,20 +177,20 @@ export default function TaskCard({
 
           {/* Sub-items: checklist UI for task subtasks */}
           <div>
-            <p className="text-[9px] uppercase tracking-wider text-gray-600 mb-1.5">Sub-tareas</p>
+            <p className="text-[9px] uppercase tracking-wider text-text-muted/70 mb-1.5">{t('subtasks')}</p>
             {task.subItems.length === 0 && (
-              <p className="text-[10px] text-gray-700 mb-1">Sin sub-tareas aún</p>
+              <p className="text-[10px] text-text-muted/50 mb-1">{t('no_subtasks')}</p>
             )}
             {task.subItems.map((s) => (
-              <div key={s.id} className="flex items-center gap-2 py-1 border-b border-white/4">
+              <div key={s.id} className="flex items-center gap-2 py-1 border-b border-border-main">
                 <button
                   onClick={() => onToggleSubItem(task.id, s.id)}
-                  className={`w-3.5 h-3.5 rounded border flex items-center justify-center shrink-0 transition-colors ${s.done ? 'bg-purple-600 border-purple-600' : 'border-gray-600'}`}
+                  className={`w-3.5 h-3.5 rounded border flex items-center justify-center shrink-0 transition-colors ${s.done ? 'bg-purple-600 border-purple-600' : 'border-border-main bg-bg-input'}`}
                 >
                   {s.done && <CheckIcon className="w-2.5 h-2.5 text-white" />}
                 </button>
-                <span className={`flex-1 text-[10px] ${s.done ? 'line-through text-gray-600' : 'text-gray-400'}`}>{s.text}</span>
-                <button onClick={() => onDeleteSubItem(task.id, s.id)} className="text-gray-700 hover:text-red-400 transition-colors">
+                <span className={`flex-1 text-[10px] ${s.done ? 'line-through text-text-muted/50' : 'text-text-main'}`}>{s.text}</span>
+                <button onClick={() => onDeleteSubItem(task.id, s.id)} className="text-text-muted/40 hover:text-red-500 transition-colors">
                   <XMarkIcon className="w-3 h-3" />
                 </button>
               </div>
@@ -164,10 +201,10 @@ export default function TaskCard({
                 value={subInput}
                 onChange={(e) => setSubInput(e.target.value)}
                 onKeyDown={(e) => e.key === 'Enter' && handleAddSub()}
-                placeholder="Nueva sub-tarea..."
-                className="flex-1 bg-purple-500/6 border border-purple-500/15 rounded px-2 py-1 text-[10px] text-slate-300 outline-none placeholder:text-gray-700 focus:border-purple-500/40"
+                placeholder={t('new_subtask')}
+                className="flex-1 bg-bg-input border border-border-main rounded px-2 py-1 text-[10px] text-text-main outline-none placeholder:text-text-muted/40 focus:border-purple-500/40"
               />
-              <button onClick={handleAddSub} className="bg-purple-500/20 border border-purple-500/25 text-purple-300 rounded px-2 py-1 text-[10px] hover:bg-purple-500/35 transition-colors">
+              <button onClick={handleAddSub} className="bg-purple-500/10 border border-purple-500/20 text-purple-600 dark:text-purple-300 rounded px-2 py-1 text-[10px] hover:bg-purple-500/25 transition-colors">
                 <PlusIcon className="w-3 h-3" />
               </button>
             </div>

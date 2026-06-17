@@ -4,6 +4,52 @@
 
 @import "tailwindcss";
 
+:root {
+  --bg-main: #f5f3ff;
+  --bg-sidebar: #ffffff;
+  --bg-card: rgba(255, 255, 255, 0.95);
+  --border-main: rgba(139, 92, 246, 0.12);
+  --text-main: #1e1b4b;
+  --text-muted: #5b21b6;
+  --bg-input: rgba(139, 92, 246, 0.06);
+  --bg-column: rgba(139, 92, 246, 0.04);
+  --bg-card-hover: rgba(139, 92, 246, 0.08);
+  --border-column: rgba(139, 92, 246, 0.08);
+  --shadow-hero: 0 20px 80px -40px rgba(139, 92, 246, 0.25);
+  --bg-hero: linear-gradient(135deg, #ede9fe, #fae8ff, #f3e8ff);
+  --text-hero-title: #2e1065;
+  --text-hero-desc: #5b21b6;
+}
+
+.dark {
+  --bg-main: #0d0d14;
+  --bg-sidebar: #090910;
+  --bg-card: rgba(18, 16, 31, 0.95);
+  --border-main: rgba(255, 255, 255, 0.05);
+  --text-main: #cbd5e1;
+  --text-muted: #94a3b8;
+  --bg-input: rgba(15, 15, 32, 0.7);
+  --bg-column: rgba(12, 12, 22, 0.8);
+  --bg-card-hover: rgba(255, 255, 255, 0.05);
+  --border-column: rgba(255, 255, 255, 0.05);
+  --shadow-hero: 0 20px 120px -80px rgba(125, 70, 255, 0.7);
+  --bg-hero: linear-gradient(to bottom right, #130b2e, #0e0820, #090710);
+  --text-hero-title: #ffffff;
+  --text-hero-desc: #9ca3af;
+}
+
 @theme {
   --font-sans: "Space Grotesk", ui-sans-serif, system-ui, sans-serif;
+  --color-bg-main: var(--bg-main);
+  --color-bg-sidebar: var(--bg-sidebar);
+  --color-bg-card: var(--bg-card);
+  --color-border-main: var(--border-main);
+  --color-text-main: var(--text-main);
+  --color-text-muted: var(--text-muted);
+  --color-bg-input: var(--bg-input);
+  --color-bg-column: var(--bg-column);
+  --color-bg-card-hover: var(--bg-card-hover);
+  --color-border-column: var(--border-column);
+  --color-text-hero-title: var(--text-hero-title);
+  --color-text-hero-desc: var(--text-hero-desc);
 }

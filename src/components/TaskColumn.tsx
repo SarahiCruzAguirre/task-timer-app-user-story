@@ -4,12 +4,13 @@
 import { DragEvent } from 'react';
 import { Task, TaskStatus } from '@/types/task';
 import TaskCard from './TaskCard';
+import { useTranslation } from '@/hooks/useTranslation';
 
-const COL_CONFIG: Record<TaskStatus, { label: string; dot: string; name: string }> = {
-  inbox:       { label: 'Inbox',      dot: 'bg-gray-500',    name: 'text-gray-400' },
-  pending:     { label: 'Pendiente',  dot: 'bg-amber-400',   name: 'text-amber-300' },
-  in_progress: { label: 'En proceso', dot: 'bg-purple-500',  name: 'text-purple-300' },
-  done:        { label: 'Hecha',      dot: 'bg-emerald-400', name: 'text-emerald-300' },
+const COL_CONFIG: Record<TaskStatus, { dot: string; name: string }> = {
+  inbox:       { dot: 'bg-gray-500',    name: 'text-gray-400' },
+  pending:     { dot: 'bg-amber-400',   name: 'text-amber-300' },
+  in_progress: { dot: 'bg-purple-500',  name: 'text-purple-300' },
+  done:        { dot: 'bg-emerald-400', name: 'text-emerald-300' },
 };
 
 interface Props {
@@ -24,7 +25,19 @@ interface Props {
 }
 
 export default function TaskColumn({ status, tasks, ...handlers }: Props) {
+  const { t } = useTranslation();
   const cfg = COL_CONFIG[status];
+
+  // Map task statuses to translated labels dynamically
+  const getStatusLabel = (s: TaskStatus): string => {
+    switch (s) {
+      case 'inbox':       return t('inbox');
+      case 'pending':     return t('pending');
+      case 'in_progress': return t('progress');
+      case 'done':        return t('done');
+      default:            return s;
+    }
+  };
 
   const handleDrop = (e: DragEvent<HTMLDivElement>) => {
     e.preventDefault();
@@ -47,19 +60,19 @@ export default function TaskColumn({ status, tasks, ...handlers }: Props) {
       onDrop={handleDrop}
       onDragOver={handleDragOver}
       onDragLeave={handleDragLeave}
-      className="bg-[#0c0c16]/80 border border-white/5 rounded-xl p-2.5 min-h-[300px] transition-colors"
+      className="bg-bg-column border border-border-column rounded-xl p-2.5 min-h-[300px] transition-colors"
     >
       {/* Column header with color dot and count */}
-      <div className="flex items-center gap-2 pb-2 mb-2 border-b border-white/5">
+      <div className="flex items-center gap-2 pb-2 mb-2 border-b border-border-column">
         <div className={`w-2 h-2 rounded-full ${cfg.dot}`} />
-        <span className={`text-[10px] font-semibold uppercase tracking-widest flex-1 ${cfg.name}`}>{cfg.label}</span>
-        <span className="text-[10px] bg-white/5 text-gray-600 rounded-full px-2 py-0.5">{tasks.length}</span>
+        <span className={`text-[10px] font-semibold uppercase tracking-widest flex-1 ${cfg.name}`}>{getStatusLabel(status)}</span>
+        <span className="text-[10px] bg-bg-input text-text-muted rounded-full px-2 py-0.5">{tasks.length}</span>
       </div>
 
       {/* Task cards area: empty state or mapped TaskCard components */}
       {tasks.length === 0 ? (
-        <div className="text-center py-8 text-gray-800 text-[10px] border border-dashed border-white/4 rounded-lg">
-          Sin tareas
+        <div className="text-center py-8 text-text-muted/60 text-[10px] border border-dashed border-border-column rounded-lg">
+          {t('no_tasks')}
         </div>
       ) : (
         tasks.map((t) => (
