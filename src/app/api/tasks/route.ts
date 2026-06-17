@@ -5,15 +5,41 @@ import type { Task } from "@/types/task";
 // API route handlers for `/api/tasks` supporting GET/POST/PATCH/DELETE.
 // Uses the shared MongoDB client from `lib/mongodb`.
 export async function GET() {
-  const client = await clientPromise;
-  const db = client.db();
-  const tasks = await db
-    .collection<Task>("tasks")
-    .find({})
-    .sort({ createdAt: -1 })
-    .toArray();
+  try {
+    const client = await clientPromise;
+    const db = client.db();
+    const tasks = await db
+      .collection<Task>("tasks")
+      .find({})
+      .sort({ createdAt: -1 })
+      .toArray();
 
-  return NextResponse.json(tasks);
+    // Aggregate comments count grouped by todoId from comments collection
+    const commentCounts = await db.collection("comments").aggregate([
+      { $group: { _id: "$todoId", count: { $sum: 1 } } }
+    ]).toArray();
+
+    // Create a key-value map for quick lookup
+    const countMap = new Map<string, number>(
+      commentCounts.map((c: any) => [String(c._id), Number(c.count)])
+    );
+
+    // Append commentCount field to task objects before responding
+    const tasksWithCounts = tasks.map((task: any) => {
+      const dbId = task._id ? String(task._id) : "";
+      const stringId = task.id ? String(task.id) : "";
+      const count = countMap.get(dbId) || countMap.get(stringId) || 0;
+      return {
+        ...task,
+        commentCount: count,
+      };
+    });
+
+    return NextResponse.json(tasksWithCounts);
+  } catch (err) {
+    console.error("GET /api/tasks error:", err);
+    return NextResponse.json({ error: String(err) }, { status: 500 });
+  }
 }
 
 export async function POST(req: NextRequest) {
