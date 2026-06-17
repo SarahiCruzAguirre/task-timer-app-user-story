@@ -19,6 +19,7 @@ export interface SubItem {
 // `Task` — main data model representing a to-do item.
 export interface Task {
   id: string;
+  _id?: string;
   title: string;
   description?: string;
   status: TaskStatus;
@@ -26,4 +27,5 @@ export interface Task {
   timeLogs: TimeLog[];
   subItems: SubItem[];
   color?: string;
+  commentCount?: number;
 }
