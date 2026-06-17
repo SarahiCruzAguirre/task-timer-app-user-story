@@ -35,9 +35,9 @@ export async function GET(
     const client = await clientPromise;
     const db = client.db();
 
-    // Prepare robust query matching both ObjectId _id and string id
+    // Prepare robust query matching ObjectId _id, string _id, and string id
     const query = ObjectId.isValid(id)
-      ? { $or: [{ _id: new ObjectId(id) }, { id: id }] }
+      ? { $or: [{ _id: new ObjectId(id) }, { _id: id }, { id: id }] }
       : { id: id };
 
     const task = await db.collection("tasks").findOne(query);
